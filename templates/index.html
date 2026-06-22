@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMAGE GENIUS - Advanced Image Generator & Editor</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">
+      <span class="logo-icon">✦</span>
+      <h1>IMAGE GENIUS</h1>
+    </div>
+    <div class="header-info">
+      <span id="imageInfo">No image loaded</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" onclick="downloadImage('PNG')" title="Download PNG">⬇</button>
+      <button class="btn-icon" onclick="downloadImage('JPEG')" title="Download JPEG">🖼</button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" data-tab="generate" onclick="switchTab('generate')">
+          <span class="tab-icon">✦</span> Generate
+        </button>
+        <button class="sidebar-tab" data-tab="edit" onclick="switchTab('edit')">
+          <span class="tab-icon">🎨</span> Edit
+        </button>
+        <button class="sidebar-tab" data-tab="layers" onclick="switchTab('layers')">
+          <span class="tab-icon">📑</span> Layers
+        </button>
+        <button class="sidebar-tab" data-tab="adjust" onclick="switchTab('adjust')">
+          <span class="tab-icon">🔆</span> Adjust
+        </button>
+        <button class="sidebar-tab" data-tab="filter" onclick="switchTab('filter')">
+          <span class="tab-icon">🌀</span> Filters
+        </button>
+        <button class="sidebar-tab" data-tab="transform" onclick="switchTab('transform')">
+          <span class="tab-icon">↔</span> Transform
+        </button>
+        <button class="sidebar-tab" data-tab="effects" onclick="switchTab('effects')">
+          <span class="tab-icon">✨</span> Effects
+        </button>
+        <button class="sidebar-tab" data-tab="draw" onclick="switchTab('draw')">
+          <span class="tab-icon">✏</span> Draw
+        </button>
+      </div>
+
+      <div class="sidebar-content">
+        <div class="tab-panel active" id="tab-generate">
+          <div class="panel-section">
+            <h3>Generation Type</h3>
+            <select id="genType" onchange="updateGenParams()">
+              <option value="mandelbrot">Mandelbrot Fractal</option>
+              <option value="julia">Julia Fractal</option>
+              <option value="perlin">Perlin Noise</option>
+              <option value="plasma">Plasma Fractal</option>
+              <option value="cellular">Cellular Automata</option>
+              <option value="gradient">Gradient</option>
+              <option value="geometric">Geometric Pattern</option>
+              <option value="spirograph">Spirograph</option>
+              <option value="voronoi">Voronoi Diagram</option>
+              <option value="galaxy">Galaxy</option>
+              <option value="wave">Wave Pattern</option>
+              <option value="snowflake">Koch Snowflake</option>
+              <option value="abstract">Abstract Art</option>
+            </select>
+          </div>
+
+          <div id="genParams" class="panel-section">
+          </div>
+
+          <div class="panel-section">
+            <h3>Resolution</h3>
+            <div class="row">
+              <label>Width: <input type="number" id="genWidth" value="1920" min="64" max="8192"></label>
+              <label>Height: <input type="number" id="genHeight" value="1080" min="64" max="8192"></label>
+            </div>
+          </div>
+
+          <button class="btn-primary" onclick="generate()">✦ Generate Image</button>
+        </div>
+
+        <div class="tab-panel" id="tab-edit">
+          <div class="panel-section">
+            <h3>Image Upload</h3>
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+              <span>📁 Drop or Click to Upload</span>
+              <input type="file" id="fileInput" accept="image/*" hidden onchange="uploadImage(this)">
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Quick Actions</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="undo()">↩ Undo</button>
+              <button class="btn-sm" onclick="redo()">↪ Redo</button>
+              <button class="btn-sm" onclick="resetEditor()">⟲ Reset</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Canvas Size</h3>
+            <div class="row">
+              <input type="number" id="canvasW" value="1920" min="1">
+              <input type="number" id="canvasH" value="1080" min="1">
+              <button class="btn-sm" onclick="resizeCanvas()">Resize</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-layers">
+          <div class="panel-section">
+            <h3>Layer Blend Mode</h3>
+            <select id="blendMode">
+              <option value="normal">Normal</option>
+              <option value="multiply">Multiply</option>
+              <option value="screen">Screen</option>
+              <option value="overlay">Overlay</option>
+              <option value="darken">Darken</option>
+              <option value="lighten">Lighten</option>
+              <option value="difference">Difference</option>
+              <option value="exclusion">Exclusion</option>
+              <option value="add">Add</option>
+              <option value="subtract">Subtract</option>
+              <option value="divide">Divide</option>
+              <option value="dodge">Dodge</option>
+              <option value="burn">Burn</option>
+              <option value="soft_light">Soft Light</option>
+              <option value="hard_light">Hard Light</option>
+              <option value="color_dodge">Color Dodge</option>
+              <option value="color_burn">Color Burn</option>
+              <option value="reflect">Reflect</option>
+              <option value="glow">Glow</option>
+              <option value="freeze">Freeze</option>
+              <option value="heat">Heat</option>
+              <option value="negation">Negation</option>
+              <option value="phoenix">Phoenix</option>
+              <option value="pin_light">Pin Light</option>
+              <option value="vivid_light">Vivid Light</option>
+              <option value="linear_dodge">Linear Dodge</option>
+              <option value="linear_burn">Linear Burn</option>
+            </select>
+          </div>
+          <div class="panel-section">
+            <h3>Opacity</h3>
+            <input type="range" id="layerOpacity" min="0" max="100" value="100" oninput="document.getElementById('opacityVal').textContent=this.value+'%'">
+            <span id="opacityVal">100%</span>
+          </div>
+          <div class="panel-section">
+            <h3>Overlay Image</h3>
+            <div class="upload-area" onclick="document.getElementById('overlayInput').click()">
+              <span>📁 Upload Overlay</span>
+              <input type="file" id="overlayInput" accept="image/*" hidden onchange="uploadOverlay(this)">
+            </div>
+            <button class="btn-sm" onclick="applyBlend()">Apply Blend</button>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-adjust">
+          <div class="panel-section">
+            <h3>Basic Adjustments</h3>
+            <label>Brightness <input type="range" id="adjBrightness" min="0" max="300" value="100" oninput="liveAdjust()"></label>
+            <label>Contrast <input type="range" id="adjContrast" min="0" max="300" value="100" oninput="liveAdjust()"></label>
+            <label>Saturation <input type="range" id="adjSaturation" min="0" max="300" value="100" oninput="liveAdjust()"></label>
+            <label>Sharpness <input type="range" id="adjSharpness" min="0" max="300" value="100" oninput="liveAdjust()"></label>
+          </div>
+          <div class="panel-section">
+            <h3>Advanced Adjustments</h3>
+            <label>Gamma <input type="range" id="adjGamma" min="10" max="300" value="100" oninput="liveAdjust()"></label>
+            <label>Exposure <input type="range" id="adjExposure" min="-200" max="200" value="0" oninput="liveAdjust()"></label>
+            <label>Vibrance <input type="range" id="adjVibrance" min="-100" max="100" value="0" oninput="liveAdjust()"></label>
+            <label>Temperature <input type="range" id="adjTemp" min="-100" max="100" value="0" oninput="liveAdjust()"></label>
+            <label>Hue Shift <input type="range" id="adjHue" min="0" max="100" value="0" oninput="liveAdjust()"></label>
+          </div>
+          <div class="panel-section">
+            <h3>HSL</h3>
+            <label>Highlights <input type="range" id="adjHighlights" min="-100" max="100" value="0" oninput="liveAdjust()"></label>
+            <label>Shadows <input type="range" id="adjShadows" min="-100" max="100" value="0" oninput="liveAdjust()"></label>
+          </div>
+          <button class="btn-primary" onclick="applyAdjustments()">Apply Adjustments</button>
+        </div>
+
+        <div class="tab-panel" id="tab-filter">
+          <div class="panel-section">
+            <h3>Blur Filters</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="applyFilter('blur',{radius:5})">Gaussian Blur</button>
+              <button class="btn-sm" onclick="applyFilter('box_blur',{radius:3})">Box Blur</button>
+              <button class="btn-sm" onclick="applyFilter('motion_blur',{intensity:10,direction:0})">Motion Blur</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Artistic Filters</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="applyFilter('oil_painting',{radius:4,intensity:10})">Oil Paint</button>
+              <button class="btn-sm" onclick="applyFilter('pencil_sketch',{radius:5})">Pencil Sketch</button>
+              <button class="btn-sm" onclick="applyFilter('cartoon',{threshold:30})">Cartoon</button>
+              <button class="btn-sm" onclick="applyFilter('posterize',{bits:4})">Posterize</button>
+              <button class="btn-sm" onclick="applyFilter('sepia',{amount:1})">Sepia</button>
+              <button class="btn-sm" onclick="applyFilter('neon')">Neon</button>
+              <button class="btn-sm" onclick="applyFilter('dream',{iterations:3})">Dream</button>
+              <button class="btn-sm" onclick="applyFilter('thermal')">Thermal</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Edge & Sharpen</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="applyFilter('sharpen',{factor:2})">Sharpen</button>
+              <button class="btn-sm" onclick="applyFilter('edge_detect',{amount:1})">Edge Detect</button>
+              <button class="btn-sm" onclick="applyFilter('emboss')">Emboss</button>
+              <button class="btn-sm" onclick="applyFilter('contour')">Contour</button>
+              <button class="btn-sm" onclick="applyFilter('emboss_deep')">Deep Emboss</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Pixel Effects</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="applyFilter('pixelate',{pixel_size:10})">Pixelate</button>
+              <button class="btn-sm" onclick="applyFilter('mosaic',{tile_size:20})">Mosaic</button>
+              <button class="btn-sm" onclick="applyFilter('noise',{amount:20})">Add Noise</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Color Adjustments</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="applyFilter('invert')">Invert</button>
+              <button class="btn-sm" onclick="applyFilter('grayscale')">Grayscale</button>
+              <button class="btn-sm" onclick="applyFilter('equalize')">Equalize</button>
+              <button class="btn-sm" onclick="applyFilter('solarize',{threshold:128})">Solarize</button>
+              <button class="btn-sm" onclick="applyFilter('smooth')">Smooth</button>
+              <button class="btn-sm" onclick="applyFilter('detail')">Detail</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Custom Kernel</h3>
+            <textarea id="customKernel" rows="3" placeholder="0,-1,0;-1,5,-1;0,-1,0"></textarea>
+            <button class="btn-sm" onclick="applyCustomKernel()">Apply Kernel</button>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-transform">
+          <div class="panel-section">
+            <h3>Resize</h3>
+            <div class="row">
+              <input type="number" id="resizeW" placeholder="Width" value="1920">
+              <input type="number" id="resizeH" placeholder="Height" value="1080">
+            </div>
+            <label><input type="checkbox" id="keepAspect" checked> Keep Aspect Ratio</label>
+            <button class="btn-sm" onclick="applyTransform('resize',{width:document.getElementById('resizeW').value,height:document.getElementById('resizeH').value,keep_aspect:document.getElementById('keepAspect').checked})">Apply Resize</button>
+          </div>
+          <div class="panel-section">
+            <h3>Rotate & Flip</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="applyTransform('rotate',{angle:90})">↻ 90°</button>
+              <button class="btn-sm" onclick="applyTransform('rotate',{angle:180})">↻ 180°</button>
+              <button class="btn-sm" onclick="applyTransform('rotate',{angle:-90})">↺ 90°</button>
+              <button class="btn-sm" onclick="applyTransform('flip_horizontal')">↔ Flip H</button>
+              <button class="btn-sm" onclick="applyTransform('flip_vertical')">↕ Flip V</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Scale</h3>
+            <input type="range" id="scaleFactor" min="10" max="400" value="100" oninput="document.getElementById('scaleVal').textContent=this.value+'%'">
+            <span id="scaleVal">100%</span>
+            <button class="btn-sm" onclick="applyTransform('scale',{scale:document.getElementById('scaleFactor').value/100})">Apply Scale</button>
+          </div>
+          <div class="panel-section">
+            <h3>Crop</h3>
+            <div class="row">
+              <input type="number" id="cropX" placeholder="X" value="0">
+              <input type="number" id="cropY" placeholder="Y" value="0">
+              <input type="number" id="cropW" placeholder="W" value="800">
+              <input type="number" id="cropH" placeholder="H" value="600">
+            </div>
+            <button class="btn-sm" onclick="applyTransform('crop',{x:document.getElementById('cropX').value,y:document.getElementById('cropY').value,width:document.getElementById('cropW').value,height:document.getElementById('cropH').value})">Apply Crop</button>
+          </div>
+          <div class="panel-section">
+            <h3>Skew</h3>
+            <label>X: <input type="range" id="skewX" min="-100" max="100" value="0"></label>
+            <label>Y: <input type="range" id="skewY" min="-100" max="100" value="0"></label>
+            <button class="btn-sm" onclick="applyTransform('skew',{skew_x:document.getElementById('skewX').value/100,skew_y:document.getElementById('skewY').value/100})">Apply Skew</button>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-effects">
+          <div class="panel-section">
+            <h3>Light Effects</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="applyEffect('vignette')">Vignette</button>
+              <button class="btn-sm" onclick="applyEffect('glow')">Glow</button>
+              <button class="btn-sm" onclick="applyEffect('lens_flare')">Lens Flare</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Distort Effects</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="applyEffect('kaleidoscope',{segments:8})">Kaleidoscope</button>
+              <button class="btn-sm" onclick="applyEffect('wave_distort',{amplitude:10,frequency:0.05,direction:'horizontal'})">Wave Distort</button>
+              <button class="btn-sm" onclick="applyEffect('buldge',{strength:1})">Buldge</button>
+              <button class="btn-sm" onclick="applyEffect('ripple',{amplitude:10,frequency:0.05})">Ripple</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Gradient Map</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="applyGradientMap(['#000000','#ffffff'])">B&W Map</button>
+              <button class="btn-sm" onclick="applyGradientMap(['#ff0000','#ffff00','#00ff00','#00ffff','#0000ff'])">Rainbow</button>
+              <button class="btn-sm" onclick="applyGradientMap(['#000000','#ff0000','#ff8800','#ffff00'])">Fire</button>
+              <button class="btn-sm" onclick="applyGradientMap(['#000428','#004e92','#00b4db','#ffffff'])">Ocean</button>
+              <button class="btn-sm" onclick="applyGradientMap(['#0f0c29','#302b63','#24243e'])">Deep Space</button>
+              <button class="btn-sm" onclick="applyGradientMap(['#ff7e5f','#feb47b','#ffe259','#ffa751'])">Sunset</button>
+              <button class="btn-sm" onclick="applyGradientMap(['#11998e','#38ef7d'])">Neon Green</button>
+              <button class="btn-sm" onclick="applyGradientMap(['#8e2de2','#4a00e0'])">Purple Haze</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <h3>Channel Mixer</h3>
+            <div class="btn-group">
+              <button class="btn-sm" onclick="applyChannelMixer([1,0,0],[0,1,0],[0,0,1])">Reset</button>
+              <button class="btn-sm" onclick="applyChannelMixer([1,0,0],[0,0,1],[0,1,0])">Swap G-B</button>
+              <button class="btn-sm" onclick="applyChannelMixer([0,0,1],[0,1,0],[1,0,0])">Swap R-B</button>
+              <button class="btn-sm" onclick="applyChannelMixer([0,1,0],[1,0,0],[0,0,1])">Swap R-G</button>
+              <button class="btn-sm" onclick="applyChannelMixer([1,1,0],[0,1,1],[1,0,1])">Boost</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-draw">
+          <div class="panel-section">
+            <h3>Text Tool</h3>
+            <input type="text" id="drawText" placeholder="Enter text..." value="IMAGE GENIUS">
+            <div class="row">
+              <input type="number" id="textSize" placeholder="Size" value="48" min="8" max="500">
+              <input type="color" id="textColor" value="#ffffff">
+            </div>
+            <label>X: <input type="number" id="textX" value="100"></label>
+            <label>Y: <input type="number" id="textY" value="100"></label>
+            <label>Rotation: <input type="range" id="textRot" min="0" max="360" value="0"></label>
+            <label>Stroke Width: <input type="range" id="textStroke" min="0" max="20" value="0"></label>
+            <button class="btn-sm" onclick="applyText()">Add Text</button>
+          </div>
+          <div class="panel-section">
+            <h3>Shapes</h3>
+            <select id="shapeType">
+              <option value="rectangle">Rectangle</option>
+              <option value="ellipse">Ellipse</option>
+              <option value="circle">Circle</option>
+              <option value="line">Line</option>
+              <option value="arrow">Arrow</option>
+              <option value="polygon">Polygon</option>
+              <option value="star">Star</option>
+            </select>
+            <div class="row">
+              <input type="number" id="shapeX1" placeholder="X1" value="100">
+              <input type="number" id="shapeY1" placeholder="Y1" value="100">
+              <input type="number" id="shapeX2" placeholder="X2" value="300">
+              <input type="number" id="shapeY2" placeholder="Y2" value="300">
+            </div>
+            <div class="row">
+              <input type="color" id="shapeColor" value="#ff0000">
+              <input type="color" id="shapeFill" value="#ff4444">
+              <input type="number" id="shapeWidth" placeholder="Width" value="3" min="1" max="50">
+            </div>
+            <label>Sides: <input type="number" id="shapeSides" value="6" min="3" max="24"></label>
+            <button class="btn-sm" onclick="applyShape()">Add Shape</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="canvas-area">
+      <div class="canvas-container" id="canvasContainer">
+        <div class="canvas-placeholder" id="canvasPlaceholder">
+          <div class="placeholder-icon">✦</div>
+          <h2>IMAGE GENIUS</h2>
+          <p>Generate or upload an image to begin</p>
+          <div class="placeholder-actions">
+            <button onclick="switchTab('generate')">✦ Generate</button>
+            <button onclick="document.getElementById('fileInput').click()">📁 Upload</button>
+          </div>
+        </div>
+        <img id="canvas" class="hidden" alt="Image canvas">
+      </div>
+      <div class="status-bar">
+        <span id="statusText">Ready</span>
+        <span id="zoomLevel">100%</span>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="spinner"></div>
+    <p id="loadingText">Processing...</p>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ImageGenius Pro — AI Image Generator & Editor</title>
+<style>
+:root {
+  --bg: #08080f;
+  --bg2: #0e0e1a;
+  --bg3: #161625;
+  --bg4: #1c1c30;
+  --bd: #2a2a3e;
+  --bd-focus: #7c3aed;
+  --txt: #e8e8f0;
+  --txt2: #8888aa;
+  --txt3: #555577;
+  --accent: #7c3aed;
+  --accent2: #a855f7;
+  --glow: rgba(124, 58, 237, 0.25);
+  --green: #22c55e;
+  --red: #ef4444;
+  --orange: #f59e0b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--txt); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:13px; overflow:hidden; height:100vh; }
+#app { display:flex; flex-direction:column; height:100vh; }
+
+header { display:flex; align-items:center; justify-content:space-between; padding:6px 14px; background:var(--bg2); border-bottom:1px solid var(--bd); min-height:44px; z-index:100; }
+.logo { display:flex; align-items:center; gap:8px; }
+.logo-icon { font-size:20px; color:var(--accent); text-shadow:0 0 8px var(--glow); }
+.logo h1 { font-size:15px; font-weight:700; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:1px; }
+.header-info { color:var(--txt2); font-size:11px; text-align:center; }
+.header-actions { display:flex; gap:4px; }
+.btn-icon { background:var(--bg3); border:1px solid var(--bd); color:var(--txt); width:30px; height:30px; border-radius:4px; cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.btn-icon:hover { background:var(--bg4); border-color:var(--accent); }
+
+.main { display:flex; flex:1; overflow:hidden; }
+
+.sidebar { width:290px; min-width:290px; background:var(--bg2); border-right:1px solid var(--bd); display:flex; flex-direction:column; overflow:hidden; }
+.sb-tabs { display:flex; flex-wrap:wrap; gap:2px; padding:6px; border-bottom:1px solid var(--bd); background:var(--bg3); flex-shrink:0; }
+.sb-tab { background:transparent; border:1px solid transparent; color:var(--txt2); padding:5px 8px; border-radius:4px; cursor:pointer; font-size:10px; transition:all .15s; white-space:nowrap; }
+.sb-tab:hover { color:var(--txt); background:var(--bg4); }
+.sb-tab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.sb-content { flex:1; overflow-y:auto; padding:6px; }
+.sb-content::-webkit-scrollbar { width:5px; }
+.sb-content::-webkit-scrollbar-thumb { background:var(--bd); border-radius:3px; }
+.tp { display:none; }
+.tp.active { display:block; }
+
+.sec { margin-bottom:10px; padding:8px 10px; background:var(--bg4); border-radius:6px; border:1px solid var(--bd); }
+.sec h3 { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--txt2); margin-bottom:6px; font-weight:600; }
+
+label { display:block; font-size:11px; color:var(--txt2); margin-bottom:2px; }
+input,select,textarea { width:100%; padding:5px 7px; background:var(--bg3); border:1px solid var(--bd); border-radius:4px; color:var(--txt); font-size:12px; outline:none; transition:all .15s; }
+input:focus,select:focus,textarea:focus { border-color:var(--accent); box-shadow:0 0 0 2px var(--glow); }
+input[type=range] { width:100%; height:4px; -webkit-appearance:none; background:var(--bd); border-radius:2px; outline:none; margin:4px 0; padding:0; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid var(--bg2); }
+input[type=color] { width:36px; height:28px; padding:2px; }
+.row { display:flex; gap:5px; align-items:center; margin-bottom:3px; }
+.row input,.row select { flex:1; min-width:0; }
+
+.btn-p { width:100%; padding:8px 14px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:6px; color:#fff; font-size:12px; font-weight:600; cursor:pointer; transition:all .15s; letter-spacing:.3px; }
+.btn-p:hover { transform:translateY(-1px); box-shadow:0 4px 12px var(--glow); }
+.btn-sm { padding:4px 8px; background:var(--bg3); border:1px solid var(--bd); border-radius:4px; color:var(--txt); font-size:10px; cursor:pointer; transition:all .15s; }
+.btn-sm:hover { background:var(--bg4); border-color:var(--accent); }
+.btn-g { display:flex; flex-wrap:wrap; gap:3px; }
+
+.upload-z { border:2px dashed var(--bd); border-radius:6px; padding:16px; text-align:center; cursor:pointer; transition:all .15s; color:var(--txt3); font-size:11px; }
+.upload-z:hover { border-color:var(--accent); background:var(--glow); color:var(--txt); }
+
+.canvas-area { flex:1; display:flex; flex-direction:column; background:var(--bg); position:relative; }
+.canvas-wrap { flex:1; display:flex; align-items:center; justify-content:center; overflow:auto; padding:12px; position:relative; }
+.canvas-wrap canvas { max-width:100%; max-height:100%; border-radius:4px; box-shadow:0 4px 20px rgba(0,0,0,.5); }
+.ph { text-align:center; color:var(--txt3); }
+.ph-icon { font-size:56px; margin-bottom:12px; color:var(--accent); text-shadow:0 0 20px var(--glow); animation:pulse 2s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.05)} }
+.ph h2 { font-size:20px; margin-bottom:6px; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.ph p { margin-bottom:16px; font-size:12px; }
+.ph-acts { display:flex; gap:10px; justify-content:center; }
+.ph-acts button { padding:8px 20px; background:var(--bg4); border:1px solid var(--bd); border-radius:6px; color:var(--txt); font-size:13px; cursor:pointer; transition:all .15s; }
+.ph-acts button:hover { background:var(--accent); border-color:var(--accent); transform:translateY(-2px); }
+.status { display:flex; justify-content:space-between; padding:3px 14px; background:var(--bg2); border-top:1px solid var(--bd); font-size:10px; color:var(--txt3); }
+
+.toast { position:fixed; bottom:50px; left:50%; transform:translateX(-50%); padding:8px 16px; background:var(--bg4); border:1px solid var(--bd); border-radius:6px; color:var(--txt); font-size:11px; z-index:99999; box-shadow:0 4px 16px rgba(0,0,0,.5); transition:opacity .25s; }
+.toast.hidden { opacity:0; pointer-events:none; }
+.load { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(8,8,15,.88); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999999; }
+.load.hidden { display:none; }
+.spin { width:40px; height:40px; border:3px solid var(--bd); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; margin-bottom:12px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.load p { color:var(--txt2); font-size:13px; }
+
+.hidden { display:none!important; }
+.val { float:right; color:var(--accent); font-weight:600; }
+.tag { display:inline-block; padding:2px 6px; background:var(--glow); border-radius:3px; font-size:9px; color:var(--accent2); margin:1px; }
+
+@media(max-width:768px){
+  .sidebar { width:100%; min-width:unset; max-height:40vh; }
+  .main { flex-direction:column; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="logo"><span class="logo-icon">✦</span><h1>IMAGEGENIUS</h1></div>
+  <div class="header-info" id="imgInfo">No image loaded</div>
+  <div class="header-actions">
+    <button class="btn-icon" onclick="download('png')" title="Download PNG">⬇</button>
+    <button class="btn-icon" onclick="download('jpg')" title="Download JPEG">🖼</button>
+  </div>
+</header>
+<div class="main">
+<div class="sidebar">
+<div class="sb-tabs">
+  <button class="sb-tab active" data-t="ai" onclick="switchTab('ai')">✦ AI</button>
+  <button class="sb-tab" data-t="gen" onclick="switchTab('gen')">🎨 Generate</button>
+  <button class="sb-tab" data-t="adj" onclick="switchTab('adj')">🔆 Adjust</button>
+  <button class="sb-tab" data-t="flt" onclick="switchTab('flt')">🌀 Filters</button>
+  <button class="sb-tab" data-t="xform" onclick="switchTab('xform')">↔ Transform</button>
+  <button class="sb-tab" data-t="fx" onclick="switchTab('fx')">✨ Effects</button>
+  <button class="sb-tab" data-t="draw" onclick="switchTab('draw')">✏ Draw</button>
+  <button class="sb-tab" data-t="layers" onclick="switchTab('layers')">📑 Layers</button>
+  <button class="sb-tab" data-t="file" onclick="switchTab('file')">📁 File</button>
+</div>
+<div class="sb-content">
+
+<!-- == AI TAB == -->
+<div class="tp active" id="tp-ai">
+  <div class="sec">
+    <h3>✦ AI Image Generator</h3>
+    <p style="font-size:11px;color:var(--txt3);margin-bottom:6px">Generate images from text using AI. Get a free API token at huggingface.co/settings/tokens</p>
+    <label>Hugging Face Token</label>
+    <input type="password" id="hfToken" placeholder="hf_..." style="font-size:11px">
+    <label style="margin-top:4px">Model</label>
+    <select id="aiModel">
+      <option value="black-forest-labs/FLUX.1-dev">FLUX.1-dev (Fast)</option>
+      <option value="stabilityai/stable-diffusion-3.5-large">Stable Diffusion 3.5</option>
+      <option value="stabilityai/stable-diffusion-xl-base-1.0">SDXL 1.0 (Balanced)</option>
+      <option value="sd-legacy/stable-diffusion-v1-5">SD 1.5 (Legacy)</option>
+    </select>
+    <label style="margin-top:4px">Prompt</label>
+    <textarea id="aiPrompt" rows="2" placeholder="Describe the image you want..." style="font-size:12px">A majestic cyberpunk city at night with neon lights, flying cars, rain reflections</textarea>
+    <label style="margin-top:4px">Negative Prompt</label>
+    <input type="text" id="aiNegPrompt" placeholder="blurry, ugly, distorted" value="blurry, ugly, distorted, low quality">
+    <div class="row" style="margin-top:4px">
+      <label style="flex:1">Width <select id="aiW"><option value="1024">1024</option><option value="768">768</option><option value="512" selected>512</option></select></label>
+      <label style="flex:1">Height <select id="aiH"><option value="1024">1024</option><option value="768">768</option><option value="512" selected>512</option></select></label>
+    </div>
+    <button class="btn-p" onclick="generateAI()" style="margin-top:4px">✦ Generate with AI</button>
+  </div>
+  <div class="sec">
+    <h3>📝 Smart Prompt</h3>
+    <p style="font-size:10px;color:var(--txt3);margin-bottom:4px">Describe what you want and we'll try to create it</p>
+    <textarea id="smartPrompt" rows="2" placeholder="e.g. 'a beautiful sunset over mountains with purple sky'" style="font-size:12px"></textarea>
+    <button class="btn-sm" onclick="smartGenerate()" style="width:100%;margin-top:4px">Generate from Description</button>
+  </div>
+</div>
+
+<!-- == GENERATE TAB == -->
+<div class="tp" id="tp-gen">
+  <div class="sec">
+    <h3>🎨 Procedural Generator</h3>
+    <select id="genType" onchange="updateGenUI()">
+      <option value="mandelbrot">Mandelbrot Fractal</option>
+      <option value="julia">Julia Fractal</option>
+      <option value="perlin">Perlin Noise</option>
+      <option value="plasma">Plasma Fractal</option>
+      <option value="gradient">Gradient</option>
+      <option value="geometric">Geometric Pattern</option>
+      <option value="spirograph">Spirograph</option>
+      <option value="voronoi">Voronoi</option>
+      <option value="galaxy">Galaxy</option>
+      <option value="wave">Wave Pattern</option>
+      <option value="abstract">Abstract Art</option>
+    </select>
+    <div id="genParams"></div>
+    <div class="row"><label>W <input type="number" id="gW" value="1024" min="64" max="4096"></label><label>H <input type="number" id="gH" value="768" min="64" max="4096"></label></div>
+    <button class="btn-p" onclick="generateProc()">🎨 Generate</button>
+  </div>
+</div>
+
+<!-- == ADJUST TAB == -->
+<div class="tp" id="tp-adj">
+  <div class="sec">
+    <h3>🔆 Adjustments</h3>
+    <label>Brightness <input type="range" id="aBright" min="0" max="300" value="100"><span class="val" id="vBright">100</span></label>
+    <label>Contrast <input type="range" id="aContrast" min="0" max="300" value="100"><span class="val" id="vContrast">100</span></label>
+    <label>Saturation <input type="range" id="aSat" min="0" max="300" value="100"><span class="val" id="vSat">100</span></label>
+    <label>Sharpness <input type="range" id="aSharp" min="0" max="300" value="100"><span class="val" id="vSharp">100</span></label>
+    <label>Gamma <input type="range" id="aGamma" min="10" max="300" value="100"><span class="val" id="vGamma">1.0</span></label>
+    <label>Exposure <input type="range" id="aExp" min="-200" max="200" value="0"><span class="val" id="vExp">0.0</span></label>
+    <label>Vibrance <input type="range" id="aVib" min="-100" max="100" value="0"><span class="val" id="vVib">0</span></label>
+    <label>Temperature <input type="range" id="aTemp" min="-100" max="100" value="0"><span class="val" id="vTemp">0</span></label>
+    <label>Hue Shift <input type="range" id="aHue" min="0" max="360" value="0"><span class="val" id="vHue">0</span></label>
+    <label>Highlights <input type="range" id="aHL" min="-100" max="100" value="0"><span class="val" id="vHL">0</span></label>
+    <label>Shadows <input type="range" id="aShad" min="-100" max="100" value="0"><span class="val" id="vShad">0</span></label>
+    <button class="btn-p" onclick="applyAdj()">Apply Adjustments</button>
+  </div>
+</div>
+
+<!-- == FILTERS TAB == -->
+<div class="tp" id="tp-flt">
+  <div class="sec"><h3>🌀 Filters</h3>
+    <div class="btn-g">
+      <button class="btn-sm" onclick="f('gaussianBlur',5)">Gaussian Blur</button>
+      <button class="btn-sm" onclick="f('boxBlur',3)">Box Blur</button>
+      <button class="btn-sm" onclick="f('sharpen',2)">Sharpen</button>
+      <button class="btn-sm" onclick="f('edgeDetect')">Edge Detect</button>
+      <button class="btn-sm" onclick="f('emboss')">Emboss</button>
+      <button class="btn-sm" onclick="f('contour')">Contour</button>
+      <button class="btn-sm" onclick="f('sepia')">Sepia</button>
+      <button class="btn-sm" onclick="f('grayscale')">Grayscale</button>
+      <button class="btn-sm" onclick="f('invert')">Invert</button>
+      <button class="btn-sm" onclick="f('posterize',4)">Posterize</button>
+      <button class="btn-sm" onclick="f('solarize',128)">Solarize</button>
+      <button class="btn-sm" onclick="f('pixelate',8)">Pixelate</button>
+      <button class="btn-sm" onclick="f('mosaic',15)">Mosaic</button>
+      <button class="btn-sm" onclick="f('oilPaint',3)">Oil Paint</button>
+      <button class="btn-sm" onclick="f('pencil')">Pencil Sketch</button>
+      <button class="btn-sm" onclick="f('neon')">Neon</button>
+      <button class="btn-sm" onclick="f('cartoon')">Cartoon</button>
+      <button class="btn-sm" onclick="f('thermal')">Thermal</button>
+      <button class="btn-sm" onclick="f('vignette')">Vignette</button>
+      <button class="btn-sm" onclick="f('noise',30)">Add Noise</button>
+      <button class="btn-sm" onclick="f('equalize')">Equalize</button>
+      <button class="btn-sm" onclick="f('smooth')">Smooth</button>
+      <button class="btn-sm" onclick="f('detail')">Detail</button>
+    </div>
+  </div>
+</div>
+
+<!-- == TRANSFORM TAB == -->
+<div class="tp" id="tp-xform">
+  <div class="sec"><h3>↔ Transform</h3>
+    <div class="row"><input type="number" id="rW" placeholder="W" value="1024"><input type="number" id="rH" placeholder="H" value="768"><button class="btn-sm" onclick="resize()">Resize</button></div>
+    <label><input type="checkbox" id="keepA" checked> Keep aspect ratio</label>
+    <div class="btn-g" style="margin-top:4px">
+      <button class="btn-sm" onclick="rot(90)">↻ 90°</button>
+      <button class="btn-sm" onclick="rot(180)">↻ 180°</button>
+      <button class="btn-sm" onclick="rot(-90)">↺ 90°</button>
+      <button class="btn-sm" onclick="flip('h')">↔ Flip H</button>
+      <button class="btn-sm" onclick="flip('v')">↕ Flip V</button>
+      <button class="btn-sm" onclick="crop()">Crop</button>
+    </div>
+  </div>
+  <div class="sec"><h3>Crop</h3>
+    <div class="row"><input type="number" id="cX" placeholder="X" value="0"><input type="number" id="cY" placeholder="Y" value="0"><input type="number" id="cW" placeholder="W" value="512"><input type="number" id="cH" placeholder="H" value="512"></div>
+  </div>
+</div>
+
+<!-- == EFFECTS TAB == -->
+<div class="tp" id="tp-fx">
+  <div class="sec"><h3>✨ Effects</h3>
+    <div class="btn-g">
+      <button class="btn-sm" onclick="efx('vignette')">Vignette</button>
+      <button class="btn-sm" onclick="efx('glow')">Glow</button>
+      <button class="btn-sm" onclick="efx('kaleidoscope')">Kaleidoscope</button>
+      <button class="btn-sm" onclick="efx('waveDistort')">Wave Distort</button>
+      <button class="btn-sm" onclick="efx('buldge')">Buldge</button>
+      <button class="btn-sm" onclick="efx('ripple')">Ripple</button>
+      <button class="btn-sm" onclick="efx('dream')">Dream</button>
+    </div>
+  </div>
+  <div class="sec"><h3>Gradient Maps</h3>
+    <div class="btn-g">
+      <button class="btn-sm" onclick="gm(['#000','#fff'])">B&W</button>
+      <button class="btn-sm" onclick="gm(['#f00','#ff0','#0f0','#0ff','#00f'])">Rainbow</button>
+      <button class="btn-sm" onclick="gm(['#000','#f00','#f80','#ff0'])">Fire</button>
+      <button class="btn-sm" onclick="gm(['#004','#06e','#0bd','#fff'])">Ocean</button>
+      <button class="btn-sm" onclick="gm(['#0c','#f80','#f00'])">Sunset</button>
+      <button class="btn-sm" onclick="gm(['#1a0','#3f7'])">Neon Green</button>
+      <button class="btn-sm" onclick="gm(['#82e','#40e'])">Purple</button>
+    </div>
+  </div>
+  <div class="sec"><h3>Channel Mixer</h3>
+    <div class="btn-g">
+      <button class="btn-sm" onclick="cm([1,0,0],[0,1,0],[0,0,1])">Reset</button>
+      <button class="btn-sm" onclick="cm([0,0,1],[0,1,0],[1,0,0])">Swap R↔B</button>
+      <button class="btn-sm" onclick="cm([0,1,0],[1,0,0],[0,0,1])">Swap R↔G</button>
+      <button class="btn-sm" onclick="cm([1,1,0],[0,1,1],[1,0,1])">Boost</button>
+    </div>
+  </div>
+</div>
+
+<!-- == DRAW TAB == -->
+<div class="tp" id="tp-draw">
+  <div class="sec"><h3>✏ Text Tool</h3>
+    <input type="text" id="dText" value="ImageGenius" style="margin-bottom:4px">
+    <div class="row">
+      <input type="number" id="dTSize" value="48" min="8" max="400" style="flex:1">
+      <input type="color" id="dTColor" value="#ffffff" style="width:40px">
+    </div>
+    <div class="row"><input type="number" id="dTX" placeholder="X" value="50"><input type="number" id="dTY" placeholder="Y" value="50"></div>
+    <label>Rot <input type="range" id="dTRot" min="0" max="360" value="0"></label>
+    <label>Stroke <input type="range" id="dTStroke" min="0" max="20" value="0"></label>
+    <button class="btn-sm" onclick="addText()" style="width:100%">Add Text</button>
+  </div>
+  <div class="sec"><h3>Shapes</h3>
+    <select id="sType">
+      <option value="rect">Rectangle</option>
+      <option value="ellipse">Ellipse</option>
+      <option value="circle">Circle</option>
+      <option value="line">Line</option>
+      <option value="arrow">Arrow</option>
+      <option value="polygon">Polygon</option>
+      <option value="star">Star</option>
+    </select>
+    <div class="row"><input type="number" id="sX1" value="100"><input type="number" id="sY1" value="100"><input type="number" id="sX2" value="300"><input type="number" id="sY2" value="300"></div>
+    <div class="row"><input type="color" id="sCol" value="#7c3aed" style="width:36px"><input type="color" id="sFill" value="#a855f7" style="width:36px"><input type="number" id="sW" value="3" min="1" max="50" style="flex:1"></div>
+    <label>Sides <input type="number" id="sSides" value="6" min="3" max="24"></label>
+    <button class="btn-sm" onclick="addShape()" style="width:100%">Add Shape</button>
+  </div>
+</div>
+
+<!-- == LAYERS TAB == -->
+<div class="tp" id="tp-layers">
+  <div class="sec"><h3>📑 Layers & Blend</h3>
+    <label>Blend Mode <select id="blendM">
+      <option value="normal">Normal</option><option value="multiply">Multiply</option><option value="screen">Screen</option>
+      <option value="overlay">Overlay</option><option value="darken">Darken</option><option value="lighten">Lighten</option>
+      <option value="difference">Difference</option><option value="exclusion">Exclusion</option><option value="dodge">Color Dodge</option>
+      <option value="burn">Color Burn</option><option value="hlight">Hard Light</option><option value="slight">Soft Light</option>
+    </select></label>
+    <label>Opacity <input type="range" id="opLay" min="0" max="100" value="100"></label>
+    <div class="upload-z" onclick="document.getElementById('olInput').click()">📁 Upload Overlay Image</div>
+    <input type="file" id="olInput" accept="image/*" hidden onchange="loadOverlay(this)">
+    <button class="btn-sm" onclick="blendLayers()" style="width:100%;margin-top:4px">Apply Blend</button>
+  </div>
+</div>
+
+<!-- == FILE TAB == -->
+<div class="tp" id="tp-file">
+  <div class="sec"><h3>📁 File</h3>
+    <div class="upload-z" onclick="document.getElementById('fInput').click()" style="margin-bottom:6px">📁 Open Image</div>
+    <input type="file" id="fInput" accept="image/*" hidden onchange="openFile(this)">
+    <div class="btn-g">
+      <button class="btn-sm" onclick="undo()" style="flex:1">↩ Undo</button>
+      <button class="btn-sm" onclick="redo()" style="flex:1">↪ Redo</button>
+    </div>
+    <button class="btn-sm" onclick="resetAll()" style="width:100%;margin-top:4px">⟲ Reset All</button>
+  </div>
+  <div class="sec"><h3>Canvas Size</h3>
+    <div class="row"><input type="number" id="cvsW" value="1024"><input type="number" id="cvsH" value="768"><button class="btn-sm" onclick="newCanvas()">New</button></div>
+  </div>
+</div>
+
+</div></div>
+
+<div class="canvas-area">
+  <div class="canvas-wrap" id="canvasWrap">
+    <div class="ph" id="ph">
+      <div class="ph-icon">✦</div>
+      <h2>ImageGenius Pro</h2>
+      <p>AI-powered image generation & professional editing suite</p>
+      <div class="ph-acts">
+        <button onclick="switchTab('ai')">✦ AI Generate</button>
+        <button onclick="document.getElementById('fInput').click()">📁 Open</button>
+      </div>
+    </div>
+    <canvas id="cv" class="hidden"></canvas>
+  </div>
+  <div class="status">
+    <span id="stText">Ready</span>
+    <span id="stZoom">100%</span>
+  </div>
+</div>
+</div>
+</div>
+<div id="toast" class="toast hidden"></div>
+<div id="load" class="load hidden"><div class="spin"></div><p id="loadText">Processing...</p></div>
+<script>
+/* ==================== STATE ==================== */
+let canvas, ctx, imgData, curImg = null;
+let stack = [], stackIdx = -1;
+let ovData = null;
+let hfToken = '';
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+function init() {
+  canvas = document.getElementById('cv');
+  ctx = canvas.getContext('2d');
+  canvas.width = 1024; canvas.height = 768;
+  // Set up range listeners
+  document.querySelectorAll('input[type="range"]').forEach(el => {
+    const v = document.getElementById('v'+el.id.slice(1));
+    if(v) el.addEventListener('input',()=>{ v.textContent = el.step && el.step.includes('.') ? parseFloat(el.value).toFixed(1) : el.value; });
+  });
+}
+init();
+
+/* ==================== TOAST / LOADING ==================== */
+function toast(m,d=2000) {
+  const t = document.getElementById('toast'); t.textContent = m;
+  t.classList.remove('hidden'); clearTimeout(t._t);
+  t._t = setTimeout(()=>t.classList.add('hidden'), d);
+}
+function showLoad(t='Processing...') { document.getElementById('loadText').textContent=t; document.getElementById('load').classList.remove('hidden'); }
+function hideLoad() { document.getElementById('load').classList.add('hidden'); }
+
+/* ==================== TAB SWITCH ==================== */
+function switchTab(t) {
+  $$('.sb-tab').forEach(e=>e.classList.toggle('active',e.dataset.t===t));
+  $$('.tp').forEach(e=>e.classList.toggle('active',e.id==='tp-'+t));
+}
+
+/* ==================== CANVAS OPS ==================== */
+function showImg(src) {
+  const img = new Image();
+  img.onload = ()=>{
+    canvas.width = img.width; canvas.height = img.height;
+    ctx.drawImage(img,0,0);
+    curImg = img;
+    saveState();
+    document.getElementById('cv').classList.remove('hidden');
+    document.getElementById('ph').classList.add('hidden');
+    document.getElementById('imgInfo').textContent = `${img.width}×${img.height}`;
+    document.getElementById('stText').textContent = 'Ready';
+    hideLoad();
+  };
+  img.src = src;
+}
+
+function getImgData() {
+  return canvas.toDataURL('image/png');
+}
+
+function saveState() {
+  stack = stack.slice(0, stackIdx + 1);
+  stack.push(getImgData());
+  stackIdx = stack.length - 1;
+  if (stack.length > 50) { stack.shift(); stackIdx--; }
+}
+
+function undo() {
+  if (stackIdx > 0) { stackIdx--; loadFromStack(); }
+  else toast('Nothing to undo');
+}
+function redo() {
+  if (stackIdx < stack.length - 1) { stackIdx++; loadFromStack(); }
+  else toast('Nothing to redo');
+}
+function loadFromStack() {
+  const img = new Image();
+  img.onload = ()=>{
+    canvas.width = img.width; canvas.height = img.height;
+    ctx.drawImage(img,0,0);
+    curImg = img;
+    document.getElementById('imgInfo').textContent = `${img.width}×${img.height}`;
+  };
+  img.src = stack[stackIdx];
+}
+
+function resetAll() {
+  stack = []; stackIdx = -1;
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  canvas.classList.add('hidden');
+  document.getElementById('ph').classList.remove('hidden');
+  document.getElementById('imgInfo').textContent = 'No image loaded';
+  document.getElementById('stText').textContent = 'Ready';
+}
+
+/* ==================== APPLY FILTER ==================== */
+async function f(type,val) {
+  if (!curImg) { toast('No image loaded'); return; }
+  showLoad('Applying filter...');
+  await new Promise(r=>setTimeout(r,10));
+  const img = curImg;
+  const c2 = document.createElement('canvas');
+  c2.width = img.width; c2.height = img.height;
+  const cx = c2.getContext('2d');
+  cx.drawImage(img,0,0);
+  const d = cx.getImageData(0,0,c2.width,c2.height);
+  const p = d.data;
+
+  try {
+    if (type === 'gaussianBlur') { // Simple box blur approximation
+      const r = Math.max(1,val||3);
+      boxBlur(p,c2.width,c2.height,r);
+    } else if (type === 'boxBlur') {
+      boxBlur(p,c2.width,c2.height,Math.max(1,val||3));
+    } else if (type === 'sharpen') {
+      const f2 = val||2;
+      const k = [0,-1,0,-1,f2*4,-1,0,-1,0];
+      // Use a simple unsharp mask
+      const orig = new Uint8ClampedArray(p);
+      boxBlur(p,c2.width,c2.height,2);
+      for(let i=0;i<p.length;i+=4){
+        for(let c=0;c<3;c++){
+          p[i+c] = orig[i+c] + (orig[i+c] - p[i+c]) * f2;
+        }
+      }
+    } else if (type === 'edgeDetect') {
+      const gray = new Float32Array(c2.width*c2.height);
+      for(let i=0;i<gray.length;i++) gray[i]=p[i*4]*0.299+p[i*4+1]*0.587+p[i*4+2]*0.114;
+      for(let y=1;y<c2.height-1;y++) for(let x=1;x<c2.width-1;x++){
+        const gx = gray[(y-1)*c2.width+(x+1)] + 2*gray[y*c2.width+(x+1)] + gray[(y+1)*c2.width+(x+1)]
+                - gray[(y-1)*c2.width+(x-1)] - 2*gray[y*c2.width+(x-1)] - gray[(y+1)*c2.width+(x-1)];
+        const gy = gray[(y+1)*c2.width+(x-1)] + 2*gray[(y+1)*c2.width+x] + gray[(y+1)*c2.width+(x+1)]
+                - gray[(y-1)*c2.width+(x-1)] - 2*gray[(y-1)*c2.width+x] - gray[(y-1)*c2.width+(x+1)];
+        const v = Math.min(255, Math.sqrt(gx*gx+gy*gy));
+        const i = (y*c2.width+x)*4;
+        p[i]=p[i+1]=p[i+2]=v;
+      }
+    } else if (type === 'emboss') {
+      const k = [-1,-1,0,-1,0,1,0,1,1];
+      convolve(p,c2.width,c2.height,k,1,128);
+    } else if (type === 'contour') {
+      const k = [-1,-1,-1,-1,8,-1,-1,-1,-1];
+      convolve(p,c2.width,c2.height,k,1,0);
+    } else if (type === 'sepia') {
+      for(let i=0;i<p.length;i+=4){
+        const r=p[i],g=p[i+1],b=p[i+2];
+        p[i]=Math.min(255,r*.393+g*.769+b*.189);
+        p[i+1]=Math.min(255,r*.349+g*.686+b*.168);
+        p[i+2]=Math.min(255,r*.272+g*.534+b*.131);
+      }
+    } else if (type === 'grayscale') {
+      for(let i=0;i<p.length;i+=4){
+        const g=p[i]*.299+p[i+1]*.587+p[i+2]*.114;
+        p[i]=p[i+1]=p[i+2]=g;
+      }
+    } else if (type === 'invert') {
+      for(let i=0;i<p.length;i+=4) for(let c=0;c<3;c++) p[i+c]=255-p[i+c];
+    } else if (type === 'posterize') {
+      const lv = Math.max(2,val||4);
+      const s = 256/lv;
+      for(let i=0;i<p.length;i+=4) for(let c=0;c<3;c++) p[i+c]=Math.floor(p[i+c]/s)*s+s/2;
+    } else if (type === 'solarize') {
+      const t = val||128;
+      for(let i=0;i<p.length;i+=4) for(let c=0;c<3;c++) p[i+c]=p[i+c]>t?255-p[i+c]:p[i+c];
+    } else if (type === 'pixelate') {
+      const s2 = Math.max(2,val||8);
+      for(let y=0;y<c2.height;y+=s2) for(let x=0;x<c2.width;x+=s2){
+        const i=(y*c2.width+x)*4;
+        const r=p[i],g=p[i+1],b=p[i+2],a=p[i+3];
+        for(let dy=0;dy<s2&&y+dy<c2.height;dy++) for(let dx=0;dx<s2&&x+dx<c2.width;dx++){
+          const j=((y+dy)*c2.width+(x+dx))*4;
+          p[j]=r;p[j+1]=g;p[j+2]=b;p[j+3]=a;
+        }
+      }
+    } else if (type === 'mosaic') {
+      const s2 = Math.max(2,val||15);
+      for(let y=0;y<c2.height;y+=s2) for(let x=0;x<c2.width;x+=s2){
+        let tr=0,tg=0,tb=0,cnt=0;
+        for(let dy=0;dy<s2&&y+dy<c2.height;dy++) for(let dx=0;dx<s2&&x+dx<c2.width;dx++){
+          const i=((y+dy)*c2.width+(x+dx))*4;
+          tr+=p[i];tg+=p[i+1];tb+=p[i+2];cnt++;
+        }
+        tr/=cnt;tg/=cnt;tb/=cnt;
+        for(let dy=0;dy<s2&&y+dy<c2.height;dy++) for(let dx=0;dx<s2&&x+dx<c2.width;dx++){
+          const i=((y+dy)*c2.width+(x+dx))*4;
+          p[i]=tr;p[i+1]=tg;p[i+2]=tb;
+        }
+      }
+    } else if (type === 'oilPaint') {
+      const r2 = Math.max(2,val||3);
+      const l = 8;
+      for(let y=r2;y<c2.height-r2;y++) for(let x=r2;x<c2.width-r2;x++){
+        const bins = Array.from({length:l},()=>({r:0,g:0,b:0,count:0}));
+        for(let dy=-r2;dy<=r2;dy++) for(let dx=-r2;dx<=r2;dx++){
+          const i=((y+dy)*c2.width+(x+dx))*4;
+          const v = Math.floor((p[i]+p[i+1]+p[i+2])/3/(256/l));
+          bins[v].r+=p[i]; bins[v].g+=p[i+1]; bins[v].b+=p[i+2]; bins[v].count++;
+        }
+        let best = 0, bestC = 0;
+        bins.forEach((b,i)=>{ if(b.count>bestC){bestC=b.count;best=i;} });
+        const i=(y*c2.width+x)*4;
+        if(bestC>0){ p[i]=bins[best].r/bestC; p[i+1]=bins[best].g/bestC; p[i+2]=bins[best].b/bestC; }
+      }
+    } else if (type === 'pencil') {
+      for(let i=0;i<p.length;i+=4){
+        const g=p[i]*.299+p[i+1]*.587+p[i+2]*.114;
+        p[i]=p[i+1]=p[i+2]=g;
+      }
+      const orig = new Uint8ClampedArray(p);
+      boxBlur(p,c2.width,c2.height,5);
+      for(let i=0;i<p.length;i+=4){
+        for(let c=0;c<3;c++){
+          const v = Math.min(255, orig[i+c] + (orig[i+c] - p[i+c]) * 3 + 128);
+          p[i+c] = Math.max(0,Math.min(255,v));
+        }
+      }
+    } else if (type === 'neon') {
+      // Edge detect + bright colors
+      for(let i=0;i<p.length;i+=4){
+        const g=p[i]*.299+p[i+1]*.587+p[i+2]*.114;
+        p[i]=p[i+1]=p[i+2]=g;
+      }
+      const orig = new Uint8ClampedArray(p);
+      for(let y=1;y<c2.height-1;y++) for(let x=1;x<c2.width-1;x++){
+        const gx = orig[((y-1)*c2.width+(x+1))*4] + 2*orig[(y*c2.width+(x+1))*4] + orig[((y+1)*c2.width+(x+1))*4]
+                - orig[((y-1)*c2.width+(x-1))*4] - 2*orig[(y*c2.width+(x-1))*4] - orig[((y+1)*c2.width+(x-1))*4];
+        const gy = orig[((y+1)*c2.width+(x-1))*4] + 2*orig[((y+1)*c2.width+x)*4] + orig[((y+1)*c2.width+(x+1))*4]
+                - orig[((y-1)*c2.width+(x-1))*4] - 2*orig[((y-1)*c2.width+x)*4] - orig[((y-1)*c2.width+(x+1))*4];
+        const e = Math.min(255, Math.sqrt(gx*gx+gy*gy)*3);
+        const i=(y*c2.width+x)*4;
+        if(e>30){
+          const h = (x/c2.width*360+y/c2.height*180)%360;
+          const sat=1, val2=1;
+          const rgb = hsv2rgb(h/360,sat,val2);
+          p[i]=rgb[0];p[i+1]=rgb[1];p[i+2]=rgb[2];
+        } else { p[i]=p[i+1]=p[i+2]=0; }
+      }
+    } else if (type === 'cartoon') {
+      const q = 64;
+      for(let i=0;i<p.length;i+=4) for(let c=0;c<3;c++) p[i+c]=Math.floor(p[i+c]/q)*q+q/2;
+      const gray = new Float32Array(c2.width*c2.height);
+      for(let i=0;i<gray.length;i++) gray[i]=p[i*4]*.299+p[i*4+1]*.587+p[i*4+2]*.114;
+      for(let y=1;y<c2.height-1;y++) for(let x=1;x<c2.width-1;x++){
+        const gx = gray[(y-1)*c2.width+(x+1)] + 2*gray[y*c2.width+(x+1)] + gray[(y+1)*c2.width+(x+1)]
+                - gray[(y-1)*c2.width+(x-1)] - 2*gray[y*c2.width+(x-1)] - gray[(y+1)*c2.width+(x-1)];
+        const gy = gray[(y+1)*c2.width+(x-1)] + 2*gray[(y+1)*c2.width+x] + gray[(y+1)*c2.width+(x+1)]
+                - gray[(y-1)*c2.width+(x-1)] - 2*gray[(y-1)*c2.width+x] - gray[(y-1)*c2.width+(x+1)];
+        if(Math.sqrt(gx*gx+gy*gy)>40){
+          const i=(y*c2.width+x)*4;
+          p[i]=0;p[i+1]=0;p[i+2]=0;
+        }
+      }
+    } else if (type === 'thermal') {
+      for(let i=0;i<p.length;i+=4){
+        const g=p[i]*.299+p[i+1]*.587+p[i+2]*.114;
+        const v=g/255;
+        let r,g2,b2;
+        if(v<.25){ r=0;g2=0;b2=127+v*4*128; }
+        else if(v<.5){ r=(v-.25)*4*255;g2=(v-.25)*4*200;b2=255-(v-.25)*4*128; }
+        else if(v<.75){ r=255;g2=(v-.5)*4*255;b2=(v-.5)*4*100; }
+        else { r=255;g2=255-(v-.75)*4*128;b2=0; }
+        p[i]=Math.min(255,r);p[i+1]=Math.min(255,g2);p[i+2]=Math.min(255,b2);
+      }
+    } else if (type === 'vignette') {
+      const cx2=c2.width/2,cy2=c2.height/2,mr=Math.sqrt(cx2*cx2+cy2*cy2);
+      for(let y=0;y<c2.height;y++) for(let x=0;x<c2.width;x++){
+        const d=Math.sqrt((x-cx2)**2+(y-cy2)**2)/mr;
+        const f=1-d*d*0.6;
+        const i=(y*c2.width+x)*4;
+        for(let c=0;c<3;c++) p[i+c]*=Math.max(.2,f);
+      }
+    } else if (type === 'noise') {
+      const amt=val||20;
+      for(let i=0;i<p.length;i+=4) for(let c=0;c<3;c++) p[i+c]=Math.max(0,Math.min(255,p[i+c]+(Math.random()-.5)*amt*2));
+    } else if (type === 'equalize') {
+      const hist = new Array(256).fill(0);
+      for(let i=0;i<p.length;i+=4) hist[Math.round((p[i]+p[i+1]+p[i+2])/3)]++;
+      let sum=0; const lut=new Array(256);
+      for(let i=0;i<256;i++){ sum+=hist[i]; lut[i]=Math.round(255*sum/(p.length/4)); }
+      for(let i=0;i<p.length;i+=4){ const v=lut[Math.round((p[i]+p[i+1]+p[i+2])/3)]; p[i]=p[i+1]=p[i+2]=v; }
+    } else if (type === 'smooth') {
+      boxBlur(p,c2.width,c2.height,1);
+    } else if (type === 'detail') {
+      const orig = new Uint8ClampedArray(p);
+      boxBlur(p,c2.width,c2.height,1);
+      for(let i=0;i<p.length;i+=4) for(let c=0;c<3;c++) p[i+c]=Math.min(255,orig[i+c]+(orig[i+c]-p[i+c])*2);
+    }
+
+    cx.putImageData(d,0,0);
+    const src = c2.toDataURL();
+    showImg(src);
+  } catch(e) { hideLoad(); toast('Error: '+e.message); }
+}
+
+function boxBlur(p,w,h,r) {
+  const rad = Math.max(1,r);
+  const orig = new Uint8ClampedArray(p);
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+    let tr=0,tg=0,tb=0,cnt=0;
+    for(let dy=-rad;dy<=rad;dy++) for(let dx=-rad;dx<=rad;dx++){
+      const sx = x+dx, sy = y+dy;
+      if(sx>=0&&sx<w&&sy>=0&&sy<h){
+        const i = (sy*w+sx)*4;
+        tr+=orig[i];tg+=orig[i+1];tb+=orig[i+2];cnt++;
+      }
+    }
+    const i=(y*w+x)*4;
+    p[i]=tr/cnt;p[i+1]=tg/cnt;p[i+2]=tb/cnt;
+  }
+}
+
+function convolve(p,w,h,k,scale,offset) {
+  const orig = new Uint8ClampedArray(p);
+  const ks=3, hk=1;
+  for(let y=1;y<h-1;y++) for(let x=1;x<w-1;x++){
+    for(let c=0;c<3;c++){
+      let v=0;
+      for(let ky=0;ky<ks;ky++) for(let kx=0;kx<ks;kx++){
+        const i = ((y+ky-hk)*w+(x+kx-hk))*4;
+        v += orig[i+c] * k[ky*ks+kx];
+      }
+      v = v/scale + offset;
+      p[(y*w+x)*4+c] = Math.max(0,Math.min(255,v));
+    }
+  }
+}
+
+function hsv2rgb(h,s,v){
+  let r,g,b;
+  const i=Math.floor(h*6),f=h*6-i,p=v*(1-s),q=v*(1-f*s),t=v*(1-(1-f)*s);
+  switch(i%6){
+    case 0:r=v;g=t;b=p;break; case 1:r=q;g=v;b=p;break;
+    case 2:r=p;g=v;b=t;break; case 3:r=p;g=q;b=v;break;
+    case 4:r=t;g=p;b=v;break; case 5:r=v;g=p;b=q;break;
+  }
+  return [r*255,g*255,b*255];
+}
+
+/* ==================== ADJUSTMENTS ==================== */
+async function applyAdj() {
+  if(!curImg){toast('No image');return;}
+  showLoad('Applying...');await new Promise(r=>setTimeout(r,10));
+  const c2=document.createElement('canvas');c2.width=curImg.width;c2.height=curImg.height;
+  const cx=c2.getContext('2d');cx.drawImage(curImg,0,0);
+  const d=cx.getImageData(0,0,c2.width,c2.height);const p=d.data;
+  const b=parseInt($('#aBright').value)/100,c=parseInt($('#aContrast').value)/100,
+        s=parseInt($('#aSat').value)/100,sh=parseInt($('#aSharp').value)/100,
+        g=parseInt($('#aGamma').value)/100,e=parseInt($('#aExp').value)/100,
+        v=parseInt($('#aVib').value),t=parseInt($('#aTemp').value)/100,
+        h=parseInt($('#aHue').value),hl=parseInt($('#aHL').value),sd=parseInt($('#aShad').value);
+  for(let i=0;i<p.length;i+=4){
+    let r2=p[i],g2=p[i+1],b2=p[i+2];
+    // Brightness
+    r2*=b;g2*=b;b2*=b;
+    // Contrast
+    r2=(r2-128)*c+128;g2=(g2-128)*c+128;b2=(b2-128)*c+128;
+    // Saturation
+    const gray=r2*.299+g2*.587+b2*.114;
+    r2=gray+(r2-gray)*s;g2=gray+(g2-gray)*s;b2=gray+(b2-gray)*s;
+    // Gamma
+    r2=Math.pow(Math.max(0,r2/255),g)*255;g2=Math.pow(Math.max(0,g2/255),g)*255;b2=Math.pow(Math.max(0,b2/255),g)*255;
+    // Exposure
+    const ef=Math.pow(2,e);r2*=ef;g2*=ef;b2*=ef;
+    // Vibrance
+    const mx=Math.max(r2,g2,b2),mn=Math.min(r2,g2,b2);
+    if(mx>0){const sat2=(mx-mn)/mx;const bo=1+v*.01*(1-sat2);r2=gray+(r2-gray)*bo;g2=gray+(g2-gray)*bo;b2=gray+(b2-gray)*bo;}
+    // Temperature
+    r2*=1+t*.1;b2*=1-t*.05;
+    // Highlights/Shadows
+    if(hl!==0){const f2=hl/100;if(r2>128)r2+=f2*(255-r2)*.5;if(g2>128)g2+=f2*(255-g2)*.5;if(b2>128)b2+=f2*(255-b2)*.5;}
+    if(sd!==0){const f2=sd/100;if(r2<128)r2+=f2*r2*.5;if(g2<128)g2+=f2*g2*.5;if(b2<128)b2+=f2*b2*.5;}
+    p[i]=Math.max(0,Math.min(255,r2));p[i+1]=Math.max(0,Math.min(255,g2));p[i+2]=Math.max(0,Math.min(255,b2));
+  }
+  // Hue shift
+  if(h!==0){
+    for(let i=0;i<p.length;i+=4){
+      const r2=p[i]/255,g2=p[i+1]/255,b2=p[i+2]/255;
+      const mx=Math.max(r2,g2,b2),mn=Math.min(r2,g2,b2);
+      let hue, sat, val = mx;
+      const c2=val-mn;
+      sat=val===0?0:c2/val;
+      if(c2===0) hue=0;
+      else if(val===r2) hue=((g2-b2)/c2)%6;
+      else if(val===g2) hue=(b2-r2)/c2+2;
+      else hue=(r2-g2)/c2+4;
+      hue=((hue/6+h/360)%1+1)%1;
+      const rgb=hsv2rgb(hue,sat,val);
+      p[i]=rgb[0];p[i+1]=rgb[1];p[i+2]=rgb[2];
+    }
+  }
+  cx.putImageData(d,0,0);
+  showImg(c2.toDataURL());
+  hideLoad(); toast('Adjustments applied');
+}
+
+/* ==================== TRANSFORMS ==================== */
+async function rot(a){
+  if(!curImg){toast('No image');return;}
+  showLoad('Rotating...');await new Promise(r=>setTimeout(r,10));
+  const c2=document.createElement('canvas');
+  const rad=a*Math.PI/180;
+  const s=Math.sin(rad),c=Math.cos(rad);
+  const nw=Math.abs(curImg.width*c)+Math.abs(curImg.height*s);
+  const nh=Math.abs(curImg.width*s)+Math.abs(curImg.height*c);
+  c2.width=Math.round(nw);c2.height=Math.round(nh);
+  const cx=c2.getContext('2d');
+  cx.translate(c2.width/2,c2.height/2);cx.rotate(rad);
+  cx.drawImage(curImg,-curImg.width/2,-curImg.height/2);
+  showImg(c2.toDataURL());
+}
+
+async function flip(dir){
+  if(!curImg){toast('No image');return;}
+  showLoad('Flipping...');await new Promise(r=>setTimeout(r,10));
+  const c2=document.createElement('canvas');c2.width=curImg.width;c2.height=curImg.height;
+  const cx=c2.getContext('2d');
+  if(dir==='h'){cx.translate(c2.width,0);cx.scale(-1,1);}
+  else{cx.translate(0,c2.height);cx.scale(1,-1);}
+  cx.drawImage(curImg,0,0);
+  showImg(c2.toDataURL());
+}
+
+async function resize(){
+  if(!curImg){toast('No image');return;}
+  const w=parseInt($('#rW').value)||curImg.width,h=parseInt($('#rH').value)||curImg.height;
+  showLoad('Resizing...');await new Promise(r=>setTimeout(r,10));
+  const c2=document.createElement('canvas');
+  if($('#keepA').checked){
+    const ar=curImg.width/curImg.height;
+    let nw,nh;
+    if(w/h>ar){nw=Math.round(h*ar);nh=h;}
+    else{nw=w;nh=Math.round(w/ar);}
+    c2.width=nw;c2.height=nh;
+  } else { c2.width=w;c2.height=h; }
+  const cx=c2.getContext('2d');
+  cx.imageSmoothingEnabled=true;
+  cx.drawImage(curImg,0,0,c2.width,c2.height);
+  showImg(c2.toDataURL());
+}
+
+async function crop(){
+  if(!curImg){toast('No image');return;}
+  const x=parseInt($('#cX').value)||0,y=parseInt($('#cY').value)||0,
+        w=parseInt($('#cW').value)||curImg.width,h=parseInt($('#cH').value)||curImg.height;
+  showLoad('Cropping...');await new Promise(r=>setTimeout(r,10));
+  const c2=document.createElement('canvas');c2.width=Math.min(w,curImg.width-x);c2.height=Math.min(h,curImg.height-y);
+  const cx=c2.getContext('2d');
+  cx.drawImage(curImg,x,y,c2.width,c2.height,0,0,c2.width,c2.height);
+  showImg(c2.toDataURL());
+}
+
+/* ==================== EFFECTS ==================== */
+async function efx(type){
+  if(!curImg){toast('No image');return;}
+  showLoad('Applying effect...');await new Promise(r=>setTimeout(r,10));
+  const c2=document.createElement('canvas');c2.width=curImg.width;c2.height=curImg.height;
+  const cx=c2.getContext('2d');cx.drawImage(curImg,0,0);
+  const d=cx.getImageData(0,0,c2.width,c2.height);const p=d.data;
+  const w=c2.width,h=c2.height;
+
+  if(type==='glow'){
+    const orig = new Uint8ClampedArray(p);
+    boxBlur(p,w,h,10);
+    for(let i=0;i<p.length;i+=4) for(let c=0;c<3;c++) p[i+c]=(orig[i+c]+p[i+c]*2)/3;
+  } else if(type==='kaleidoscope'){
+    const seg=8;const cx2=w/2,cy2=h/2;
+    const orig=new Uint8ClampedArray(p);
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      const dx=x-cx2,dy=y-cy2,r=Math.sqrt(dx*dx+dy*dy),a=Math.atan2(dy,dx);
+      const as=2*Math.PI/seg;
+      const si=Math.floor(a/as);const mirror=si%2===1;
+      let ma=si*as;if(mirror)ma+=as-(a-ma);else ma+=a-ma;
+      const sx=Math.round(cx2+r*Math.cos(ma)),sy=Math.round(cy2+r*Math.sin(ma));
+      if(sx>=0&&sx<w&&sy>=0&&sy<h){const i=(y*w+x)*4,j=(sy*w+sx)*4;p[i]=orig[j];p[i+1]=orig[j+1];p[i+2]=orig[j+2];}
+    }
+  } else if(type==='waveDistort'){
+    const orig=new Uint8ClampedArray(p);
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      const off=Math.round(10*Math.sin(y*0.05*2*Math.PI));
+      const sx=x+off,sy=y;
+      if(sx>=0&&sx<w){const i=(y*w+x)*4,j=(sy*w+sx)*4;p[i]=orig[j];p[i+1]=orig[j+1];p[i+2]=orig[j+2];}
+    }
+  } else if(type==='buldge'){
+    const cx2=w/2,cy2=h/2,r2=Math.min(w,h)*0.4;
+    const orig=new Uint8ClampedArray(p);
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      const dx=x-cx2,dy=y-cy2,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<r2){const f=1-(d/r2)**2;const sc=1-f*0.3;const sx=Math.round(cx2+dx*sc),sy=Math.round(cy2+dy*sc);
+        if(sx>=0&&sx<w&&sy>=0&&sy<h){const i=(y*w+x)*4,j=(sy*w+sx)*4;p[i]=orig[j];p[i+1]=orig[j+1];p[i+2]=orig[j+2];}}
+    }
+  } else if(type==='ripple'){
+    const orig=new Uint8ClampedArray(p);
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      const dx=x-w/2,dy=y-h/2,d=Math.sqrt(dx*dx+dy*dy);
+      const off=10*Math.sin(d*0.05*2*Math.PI);
+      const a=Math.atan2(dy,dx),sx=Math.round(x+off*Math.cos(a)),sy=Math.round(y+off*Math.sin(a));
+      if(sx>=0&&sx<w&&sy>=0&&sy<h){const i=(y*w+x)*4,j=(sy*w+sx)*4;p[i]=orig[j];p[i+1]=orig[j+1];p[i+2]=orig[j+2];}
+    }
+  } else if(type==='dream'){
+    for(let it=0;it<3;it++){
+      const orig=new Uint8ClampedArray(p);
+      boxBlur(p,w,h,3);
+      for(let i=0;i<p.length;i+=4) for(let c=0;c<3;c++) p[i+c]=Math.min(255,(orig[i+c]+p[i+c]*3)/4);
+    }
+  }
+
+  cx.putImageData(d,0,0);
+  showImg(c2.toDataURL());
+  hideLoad(); toast('Effect applied');
+}
+
+function gm(hexes){
+  if(!curImg){toast('No image');return;}
+  const colors=hexes.map(h=>{
+    h=h.replace('#','');
+    const v=parseInt(h,16);
+    return [(v>>16)&255,(v>>8)&255,v&255];
+  });
+  showLoad('Gradient map...');setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=curImg.width;c2.height=curImg.height;
+    const cx=c2.getContext('2d');cx.drawImage(curImg,0,0);
+    const d=cx.getImageData(0,0,c2.width,c2.height);const p=d.data;
+    for(let i=0;i<p.length;i+=4){
+      const g=p[i]*.299+p[i+1]*.587+p[i+2]*.114;
+      const t=g/255;const seg=colors.length-1;
+      const idx=Math.min(Math.floor(t*seg),seg-1);
+      const lt=t*seg-idx;
+      const c1=colors[idx],c2c=colors[Math.min(idx+1,seg)];
+      p[i]=c1[0]+(c2c[0]-c1[0])*lt;
+      p[i+1]=c1[1]+(c2c[1]-c1[1])*lt;
+      p[i+2]=c1[2]+(c2c[2]-c1[2])*lt;
+    }
+    cx.putImageData(d,0,0);
+    showImg(c2.toDataURL());
+    hideLoad();toast('Gradient map applied');
+  },50);
+}
+
+function cm(r,g,b){
+  if(!curImg){toast('No image');return;}
+  showLoad('Channel mixer...');setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=curImg.width;c2.height=curImg.height;
+    const cx=c2.getContext('2d');cx.drawImage(curImg,0,0);
+    const d=cx.getImageData(0,0,c2.width,c2.height);const p=d.data;
+    for(let i=0;i<p.length;i+=4){
+      const r2=p[i],g2=p[i+1],b2=p[i+2];
+      p[i]=Math.min(255,r2*r[0]+g2*r[1]+b2*r[2]);
+      p[i+1]=Math.min(255,r2*g[0]+g2*g[1]+b2*g[2]);
+      p[i+2]=Math.min(255,r2*b[0]+g2*b[1]+b2*b[2]);
+    }
+    cx.putImageData(d,0,0);
+    showImg(c2.toDataURL());
+    hideLoad();toast('Channel mixer applied');
+  },50);
+}
+
+/* ==================== DRAW TEXT & SHAPES ==================== */
+async function addText(){
+  if(!curImg){toast('No image');return;}
+  showLoad('Adding text...');await new Promise(r=>setTimeout(r,10));
+  const c2=document.createElement('canvas');c2.width=curImg.width;c2.height=curImg.height;
+  const cx=c2.getContext('2d');cx.drawImage(curImg,0,0);
+  const txt=$('#dText').value,sz=parseInt($('#dTSize').value)||48,col=$('#dTColor').value,
+        x=parseInt($('#dTX').value)||50,y=parseInt($('#dTY').value)||50,
+        rot=parseFloat($('#dTRot').value),sw=parseInt($('#dTStroke').value);
+  cx.save();
+  if(rot){cx.translate(x,y);cx.rotate(rot*Math.PI/180);cx.translate(-x,-y);}
+  cx.font=`${sz}px sans-serif`;
+  cx.fillStyle=col;
+  if(sw>0){cx.strokeStyle='#000';cx.lineWidth=sw;cx.strokeText(txt,x,y);}
+  cx.fillText(txt,x,y);
+  cx.restore();
+  showImg(c2.toDataURL());
+}
+
+async function addShape(){
+  if(!curImg){toast('No image');return;}
+  showLoad('Adding shape...');await new Promise(r=>setTimeout(r,10));
+  const c2=document.createElement('canvas');c2.width=curImg.width;c2.height=curImg.height;
+  const cx=c2.getContext('2d');cx.drawImage(curImg,0,0);
+  const st=$('#sType').value,x1=parseInt($('#sX1').value),y1=parseInt($('#sY1').value),
+        x2=parseInt($('#sX2').value),y2=parseInt($('#sY2').value),
+        col=$('#sCol').value,fill=$('#sFill').value,w2=parseInt($('#sW').value)||3,
+        sides=parseInt($('#sSides').value)||6;
+  cx.strokeStyle=col;cx.lineWidth=w2;cx.fillStyle=fill;
+  if(st==='rect'){cx.strokeRect(x1,y1,x2-x1,y2-y1);cx.fillRect(x1,y1,x2-x1,y2-y1);}
+  else if(st==='ellipse'){cx.beginPath();cx.ellipse((x1+x2)/2,(y1+y2)/2,Math.abs(x2-x1)/2,Math.abs(y2-y1)/2,0,0,Math.PI*2);cx.fill();cx.stroke();}
+  else if(st==='circle'){const cx3=(x1+x2)/2,cy=(y1+y2)/2,r=Math.max(1,Math.min(Math.abs(x2-x1),Math.abs(y2-y1))/2);cx.beginPath();cx.arc(cx3,cy,r,0,Math.PI*2);cx.fill();cx.stroke();}
+  else if(st==='line'){cx.beginPath();cx.moveTo(x1,y1);cx.lineTo(x2,y2);cx.stroke();}
+  else if(st==='arrow'){
+    cx.beginPath();cx.moveTo(x1,y1);cx.lineTo(x2,y2);cx.stroke();
+    const a=Math.atan2(y2-y1,x2-x1),as2=15;
+    for(const da of [a+Math.PI*.85,a-Math.PI*.85]){cx.beginPath();cx.moveTo(x2,y2);cx.lineTo(x2+as2*Math.cos(da),y2+as2*Math.sin(da));cx.stroke();}
+  } else if(st==='polygon'||st==='star'){
+    const cx3=(x1+x2)/2,cy=(y1+y2)/2,rx=Math.abs(x2-x1)/2,ry=Math.abs(y2-y1)/2;
+    cx.beginPath();
+    if(st==='star'){
+      for(let i=0;i<10;i++){const a=Math.PI*2*i/10-Math.PI/2;const r=i%2===0?1:.4;const px=cx3+rx*r*Math.cos(a),py=cy+ry*r*Math.sin(a);i===0?cx.moveTo(px,py):cx.lineTo(px,py);}
+    } else { for(let i=0;i<sides;i++){const a=Math.PI*2*i/sides-Math.PI/2;const px=cx3+rx*Math.cos(a),py=cy+ry*Math.sin(a);i===0?cx.moveTo(px,py):cx.lineTo(px,py);} }
+    cx.closePath();cx.fill();cx.stroke();
+  }
+  showImg(c2.toDataURL());
+}
+
+/* ==================== AI GENERATION ==================== */
+async function generateAI() {
+  const token = $('#hfToken').value.trim();
+  if (!token) { toast('Enter your Hugging Face token first!', 3000); return; }
+  const prompt = $('#aiPrompt').value.trim();
+  if (!prompt) { toast('Enter a prompt!'); return; }
+  const model = $('#aiModel').value;
+  const w = parseInt($('#aiW').value), h = parseInt($('#aiH').value);
+
+  showLoad(`AI generating "${prompt.slice(0,40)}..."`);
+  try {
+    const resp = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inputs: prompt, parameters: { width: w, height: h, negative_prompt: $('#aiNegPrompt').value } })
+    });
+    if (!resp.ok) {
+      const err = await resp.text().catch(()=>'');
+      if (resp.status === 503) {
+        hideLoad();
+        toast('Model loading... please wait 20s and retry', 3000);
+        return;
+      }
+      hideLoad();
+      toast(`API Error: ${resp.status} - ${err || resp.statusText}`, 4000);
+      return;
+    }
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    showImg(url);
+    toast('AI image generated!');
+  } catch(e) { hideLoad(); toast('Error: '+e.message, 3000); }
+}
+
+/* ==================== SMART PROMPT ==================== */
+async function smartGenerate() {
+  const txt = $('#smartPrompt').value.trim();
+  if (!txt) { toast('Enter a description'); return; }
+
+  // Try AI first if token available
+  const token = $('#hfToken').value.trim();
+  if (token) {
+    $('#aiPrompt').value = txt;
+    await generateAI();
+    if (curImg) return;
+  }
+
+  // Fallback: Map prompt to procedural generation
+  showLoad('Creating from description...');
+  await new Promise(r=>setTimeout(r,100));
+
+  const lower = txt.toLowerCase();
+  let genType = 'abstract';
+  const colorMap = {red:'#ff0000',blue:'#0044ff',green:'#00ff44',purple:'#8800ff',pink:'#ff0088',
+    orange:'#ff8800',yellow:'#ffff00',cyan:'#00ffff',white:'#ffffff',black:'#000000',gold:'#ffd700',
+    silver:'#c0c0c0',brown:'#8b4513'};
+
+  if(lower.includes('fractal')||lower.includes('mandelbrot')||lower.includes('julia')) genType='mandelbrot';
+  else if(lower.includes('galaxy')||lower.includes('space')||lower.includes('star')||lower.includes('nebula')) genType='galaxy';
+  else if(lower.includes('noise')||lower.includes('perlin')||lower.includes('terrain')||lower.includes('landscape')) genType='perlin';
+  else if(lower.includes('plasma')||lower.includes('fire')||lower.includes('lava')) genType='plasma';
+  else if(lower.includes('gradient')||lower.includes('fade')||lower.includes('sunset')) genType='gradient';
+  else if(lower.includes('pattern')||lower.includes('geometric')||lower.includes('tile')||lower.includes('mandala')) genType='geometric';
+  else if(lower.includes('wave')||lower.includes('ocean')||lower.includes('water')||lower.includes('sea')) genType='wave';
+  else if(lower.includes('spiral')||lower.includes('spirograph')) genType='spirograph';
+  else if(lower.includes('voronoi')||lower.includes('cell')) genType='voronoi';
+  else if(lower.includes('abstract')||lower.includes('art')) genType='abstract';
+
+  try {
+    // Parse colors from prompt
+    let colors = ['#7c3aed','#a855f7'];
+    for(const [name,hex] of Object.entries(colorMap)){
+      if(lower.includes(name)){colors[0]=colors[1];colors[1]=hex;if(colors.length<2)colors.push(hex);}
+    }
+
+    const w = parseInt($('#gW').value)||1024, h = parseInt($('#gH').value)||768;
+
+    if(genType==='mandelbrot') generateMandelbrot(w,h,256);
+    else if(genType==='galaxy') generateGalaxy(w,h);
+    else if(genType==='perlin') generatePerlin(w,h);
+    else if(genType==='plasma') generatePlasma(w,h);
+    else if(genType==='gradient') generateGradient(w,h,colors);
+    else if(genType==='geometric') generateGeometric(w,h);
+    else if(genType==='wave') generateWave(w,h,colors);
+    else if(genType==='spirograph') generateSpirograph(w,h);
+    else if(genType==='voronoi') generateVoronoi(w,h);
+    else generateAbstract(w,h);
+
+    hideLoad();
+    toast('Created from description!');
+  } catch(e) { hideLoad(); toast('Error: '+e.message); }
+}
+
+/* ==================== PROCEDURAL GENERATORS ==================== */
+function generateMandelbrot(w,h,iter){
+  showLoad('Generating Mandelbrot...');
+  setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=w;c2.height=h;
+    const cx=c2.getContext('2d');const d=cx.createImageData(w,h);const p=d.data;
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      let zx=0,zy=0,cx2=(x/w)*3.5-2.5,cy=(y/h)*3-1.5;
+      let i=0;
+      while(zx*zx+zy*zy<4&&i<iter){const t=zx*zx-zy*zy+cx2;zy=2*zx*zy+cy;zx=t;i++;}
+      const idx=(y*w+x)*4;
+      if(i===iter){p[idx]=0;p[idx+1]=0;p[idx+2]=0;}
+      else{
+        const t=i/iter;
+        p[idx]=Math.floor(255*(.5+.5*Math.sin(t*1.5*6.28)));
+        p[idx+1]=Math.floor(255*(.5+.5*Math.sin(t*2.5*6.28+.33)));
+        p[idx+2]=Math.floor(255*(.5+.5*Math.sin(t*3.5*6.28+.67)));
+      }
+      p[idx+3]=255;
+    }
+    cx.putImageData(d,0,0);
+    showImg(c2.toDataURL());
+    hideLoad();
+  },50);
+}
+
+function generateGalaxy(w,h){
+  showLoad('Generating galaxy...');
+  setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=w;c2.height=h;
+    const cx=c2.getContext('2d');cx.fillStyle='#050510';cx.fillRect(0,0,w,h);
+    const stars=3000,arms=3;
+    const colors=[{r:200,g:200,b:255},{r:255,g:255,b:255},{r:255,g:200,b:150},{r:150,g:200,b:255}];
+    for(let s=0;s<stars;s++){
+      const arm=Math.floor(Math.random()*arms);
+      const aa=arm/arms*2*Math.PI;
+      const df=Math.random()**0.5;
+      const a=aa+df*4*Math.PI;
+      const sp=Math.random()*15*(1+df);
+      const sx=w/2+df*w*0.45*Math.cos(a)+sp;
+      const sy=h/2+df*h*0.45*Math.sin(a)+sp*0.5;
+      if(sx>=0&&sx<w&&sy>=0&&sy<h){
+        const b2=1-df*0.7;const col=colors[Math.floor(Math.random()*colors.length)];
+        const r=Math.floor(col.r*b2),g=Math.floor(col.g*b2),b=Math.floor(col.b*b2);
+        const sz=1+Math.floor(Math.random()*3*b2);
+        cx.fillStyle=`rgb(${r},${g},${b})`;
+        cx.fillRect(sx,sy,sz,sz);
+      }
+    }
+    // Core glow
+    const grd=cx.createRadialGradient(w/2,h/2,0,w/2,h/2,w*0.08);
+    grd.addColorStop(0,'rgba(255,255,230,0.8)');grd.addColorStop(1,'rgba(255,255,230,0)');
+    cx.fillStyle=grd;cx.fillRect(0,0,w,h);
+    showImg(c2.toDataURL());
+    hideLoad();
+  },50);
+}
+
+function generatePerlin(w,h){
+  showLoad('Generating noise...');
+  setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=w;c2.height=h;
+    const cx=c2.getContext('2d');cx.fillStyle='#111';cx.fillRect(0,0,w,h);
+    // Simple value noise
+    const size=50;const grid=Array.from({length:2+Math.floor(h/size)},()=>Array.from({length:2+Math.floor(w/size)},()=>Math.random()));
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      const gx=x/size,gy=y/size;
+      const ix=Math.floor(gx),iy=Math.floor(gy);
+      const fx=gx-ix,fy=gy-iy;
+      const sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
+      const v=grid[iy][ix]*(1-sx)*(1-sy)+grid[iy][ix+1]*sx*(1-sy)+grid[iy+1][ix]*(1-sx)*sy+grid[iy+1][ix+1]*sx*sy;
+      val=v*255;
+      cx.fillStyle=`rgb(${Math.floor(255*(.5+.5*Math.sin(v*8)))},${Math.floor(255*(.5+.5*Math.sin(v*8+2.1)))},${Math.floor(255*(.5+.5*Math.sin(v*8+4.2)))})`;
+      cx.fillRect(x,y,1,1);
+    }
+    showImg(c2.toDataURL());
+    hideLoad();
+  },50);
+}
+
+function generatePlasma(w,h){
+  showLoad('Generating plasma...');
+  setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=w;c2.height=h;
+    const cx=c2.getContext('2d');
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      const v=Math.sin(x*0.02)+Math.sin(y*0.02)+Math.sin((x+y)*0.02)+Math.sin(Math.sqrt(x*x+y*y)*0.03);
+      const t=v/4+0.5;
+      const r=Math.floor(255*(.5+.5*Math.sin(t*12))),g=Math.floor(255*(.5+.5*Math.sin(t*12+2.1))),b=Math.floor(255*(.5+.5*Math.sin(t*12+4.2)));
+      cx.fillStyle=`rgb(${r},${g},${b})`;cx.fillRect(x,y,1,1);
+    }
+    showImg(c2.toDataURL());
+    hideLoad();
+  },50);
+}
+
+function generateGradient(w,h,colors){
+  showLoad('Generating gradient...');
+  setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=w;c2.height=h;
+    const cx=c2.getContext('2d');
+    const grd=cx.createLinearGradient(0,0,w,h);
+    colors.forEach((c,i)=>grd.addColorStop(i/(colors.length-1),c));
+    cx.fillStyle=grd;cx.fillRect(0,0,w,h);
+    showImg(c2.toDataURL());
+    hideLoad();
+  },50);
+}
+
+function generateGeometric(w,h){
+  showLoad('Generating pattern...');
+  setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=w;c2.height=h;
+    const cx=c2.getContext('2d');cx.fillStyle='#0a0a12';cx.fillRect(0,0,w,h);
+    const s=50;const cols=Math.floor(w/s)+2,rows=Math.floor(h/s)+2;
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+      const x=c*s,y=r*s;
+      const t=(r/rows+c/cols)*0.5;
+      const hue=t*0.8;
+      const rgb=hsv2rgb(hue,.8,.9);
+      cx.strokeStyle=`rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+      cx.lineWidth=1;
+      cx.beginPath();cx.arc(x,y,s*0.35,0,Math.PI*2);cx.stroke();
+      cx.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.1)`;
+      cx.beginPath();cx.arc(x,y,s*0.2,0,Math.PI*2);cx.fill();
+    }
+    showImg(c2.toDataURL());
+    hideLoad();
+  },50);
+}
+
+function generateWave(w,h,colors){
+  showLoad('Generating waves...');
+  setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=w;c2.height=h;
+    const cx=c2.getContext('2d');
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      const v=Math.sin(x*0.05)*Math.sin(y*0.03);
+      const t=(v+1)/2;
+      const r=colors.length>1?parseInt(colors[0].slice(1,3),16):100;
+      const g=colors.length>1?parseInt(colors[0].slice(3,5),16):100;
+      const b=colors.length>1?parseInt(colors[0].slice(5,7),16):200;
+      cx.fillStyle=`rgb(${Math.floor(r*t)},${Math.floor(g*t)},${Math.floor(b*t)})`;cx.fillRect(x,y,1,1);
+    }
+    showImg(c2.toDataURL());
+    hideLoad();
+  },50);
+}
+
+function generateSpirograph(w,h){
+  showLoad('Generating spirograph...');
+  setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=w;c2.height=h;
+    const cx=c2.getContext('2d');cx.fillStyle='#0a0a12';cx.fillRect(0,0,w,h);
+    const R=100,r=50,d=30;const sc=Math.min(w,h)/(2*(R+r))*0.8;
+    let px,py;const steps=15000;
+    const maxT=2*Math.PI*(r/Math.max(1,Math.gcd?Math.gcd(R,r):1));
+    for(let i=0;i<steps;i++){
+      const t=i/steps*maxT*3;
+      const x=w/2+sc*((R+r)*Math.cos(t)-d*Math.cos((R+r)/r*t));
+      const y=h/2+sc*((R+r)*Math.sin(t)-d*Math.sin((R+r)/r*t));
+      if(px!==undefined){
+        const hue=t/maxT*3;const rgb=hsv2rgb(hue%1,1,1);
+        cx.strokeStyle=`rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+        cx.lineWidth=1;cx.beginPath();cx.moveTo(px,py);cx.lineTo(x,y);cx.stroke();
+      }
+      px=x;py=y;
+    }
+    showImg(c2.toDataURL());
+    hideLoad();
+  },50);
+}
+
+function generateVoronoi(w,h){
+  showLoad('Generating voronoi...');
+  setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=w;c2.height=h;
+    const cx=c2.getContext('2d');
+    const pts=Array.from({length:30},()=>({x:Math.random()*w,y:Math.random()*h,color:hsv2rgb(Math.random(),.8,.9)}));
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+      let minD=Infinity,minI=0;
+      for(let i=0;i<pts.length;i++){const d=(x-pts[i].x)**2+(y-pts[i].y)**2;if(d<minD){minD=d;minI=i;}}
+      cx.fillStyle=`rgb(${pts[minI].color[0]},${pts[minI].color[1]},${pts[minI].color[2]})`;cx.fillRect(x,y,1,1);
+    }
+    showImg(c2.toDataURL());
+    hideLoad();
+  },50);
+}
+
+function generateAbstract(w,h){
+  showLoad('Generating abstract...');
+  setTimeout(()=>{
+    const c2=document.createElement('canvas');c2.width=w;c2.height=h;
+    const cx=c2.getContext('2d');cx.fillStyle='#0a0a12';cx.fillRect(0,0,w,h);
+    for(let i=0;i<60;i++){
+      const x=Math.random()*w,y=Math.random()*h,sz=20+Math.random()*100;
+      const rgb=hsv2rgb(Math.random(),.7,.9);
+      cx.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.15)`;
+      cx.beginPath();cx.arc(x,y,sz,0,Math.PI*2);cx.fill();
+      cx.strokeStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.3)`;
+      cx.lineWidth=1+Math.random()*3;
+      const x2=x+(Math.random()-.5)*200,y2=y+(Math.random()-.5)*200;
+      cx.beginPath();cx.moveTo(x,y);cx.lineTo(x2,y2);cx.stroke();
+    }
+    showImg(c2.toDataURL());
+    hideLoad();
+  },50);
+}
+
+function generateProc(){
+  const type = $('#genType').value;
+  const w = parseInt($('#gW').value)||1024, h = parseInt($('#gH').value)||768;
+  if(type==='mandelbrot') generateMandelbrot(w,h,256);
+  else if(type==='julia') generateMandelbrot(w,h,256);
+  else if(type==='galaxy') generateGalaxy(w,h);
+  else if(type==='perlin') generatePerlin(w,h);
+  else if(type==='plasma') generatePlasma(w,h);
+  else if(type==='gradient') generateGradient(w,h,['#7c3aed','#a855f7','#ec4899']);
+  else if(type==='geometric') generateGeometric(w,h);
+  else if(type==='spirograph') generateSpirograph(w,h);
+  else if(type==='voronoi') generateVoronoi(w,h);
+  else if(type==='wave') generateWave(w,h,['#3b82f6','#06b6d4']);
+  else generateAbstract(w,h);
+}
+
+/* ==================== FILE OPERATIONS ==================== */
+function openFile(input){
+  const file=input.files[0];if(!file)return;
+  showLoad('Loading image...');
+  const reader=new FileReader();
+  reader.onload=e=>{showImg(e.target.result);input.value='';};
+  reader.readAsDataURL(file);
+}
+
+function download(fmt){
+  if(!curImg){toast('No image');return;}
+  const link=document.createElement('a');
+  link.download=`imagegenius_${Date.now()}.${fmt}`;
+  if(fmt==='jpg'){const c2=document.createElement('canvas');c2.width=curImg.width;c2.height=curImg.height;c2.getContext('2d').drawImage(curImg,0,0);link.href=c2.toDataURL('image/jpeg',.95);}
+  else link.href=canvas.toDataURL('image/png');
+  link.click();toast(`Downloaded as ${fmt.toUpperCase()}`);
+}
+
+function newCanvas(){
+  const w=parseInt($('#cvsW').value)||1024,h=parseInt($('#cvsH').value)||768;
+  canvas.width=w;canvas.height=h;ctx.fillStyle='#000';ctx.fillRect(0,0,w,h);
+  const img=new Image();img.src=canvas.toDataURL();curImg=img;
+  document.getElementById('cv').classList.remove('hidden');document.getElementById('ph').classList.add('hidden');
+  document.getElementById('imgInfo').textContent=`${w}×${h}`;saveState();toast('Canvas created');
+}
+
+/* ==================== BLEND / LAYERS ==================== */
+function loadOverlay(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{ovData=e.target.result;toast('Overlay loaded');};
+  reader.readAsDataURL(file);
+}
+
+async function blendLayers(){
+  if(!curImg||!ovData){toast('Need image and overlay');return;}
+  showLoad('Blending...');await new Promise(r=>setTimeout(r,10));
+  const mode=$('#blendM').value;const op=parseInt($('#opLay').value)/100;
+  const c2=document.createElement('canvas');c2.width=curImg.width;c2.height=curImg.height;
+  const cx=c2.getContext('2d');cx.drawImage(curImg,0,0);
+
+  const img=new Image();img.src=ovData;
+  await new Promise(r=>{img.onload=r;});
+  const c3=document.createElement('canvas');c3.width=c2.width;c3.height=c2.height;
+  const cx3=c3.getContext('2d');cx3.drawImage(img,0,0,c2.width,c2.height);
+
+  cx.globalAlpha=op;
+  if(mode==='normal') cx.drawImage(c3,0,0);
+  else {
+    const modes={multiply:'multiply',screen:'screen',overlay:'overlay',darken:'darken',lighten:'lighten',difference:'difference',exclusion:'exclusion',dodge:'color-dodge',burn:'color-burn',hlight:'hard-light',slight:'soft-light'};
+    if(modes[mode]){cx.globalCompositeOperation=modes[mode];cx.drawImage(c3,0,0);cx.globalCompositeOperation='source-over';}
+    else cx.drawImage(c3,0,0);
+  }
+
+  showImg(c2.toDataURL());
+  hideLoad();toast('Blend applied!');
+}
+
+/* ==================== GEN UI ==================== */
+function updateGenUI(){}
+
+/* ==================== KEYBOARD ==================== */
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();e.shiftKey?redo():undo();}
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();download('png');}
+});
+
+/* ==================== DRAG DROP ==================== */
+const cw=document.getElementById('canvasWrap');
+cw.addEventListener('dragover',e=>{e.preventDefault();cw.style.borderColor='var(--accent)';});
+cw.addEventListener('dragleave',e=>{e.preventDefault();cw.style.borderColor='';});
+cw.addEventListener('drop',e=>{
+  e.preventDefault();cw.style.borderColor='';
+  const f=e.dataTransfer.files[0];if(f){const inp=document.getElementById('fInput');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;openFile(inp);}
+});
+
+toast('ImageGenius Pro ready — Generate with AI or create from prompt!');
+</script>
+</body>
+</html>
